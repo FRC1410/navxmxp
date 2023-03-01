@@ -67,6 +67,14 @@ class RegisterIO_SPI implements IRegisterIO{
         return true;
     }
 
+    private void resetSPI() {
+        port.close();
+        var portNumber = port.getPort();
+        Timer.delay(0.001);
+        SPIJNI.spiInitialize(portNumber);
+        Timer.delay(0.010);
+    }
+
     @Override
     public boolean read(byte first_address, byte[] buffer) {
         byte[] cmd = new byte[3];
@@ -98,7 +106,8 @@ class RegisterIO_SPI implements IRegisterIO{
                         System.out.printf("navX-MXP SPI Read:  CRC error %s\n",
                         ((successive_error_count < NUM_IGNORED_SUCCESSIVE_ERRORS) ? "" : " (Repeated errors omitted)"));
                     }
-                }     	
+                }
+                resetSPI();
 	            return false; // CRC ERROR
             }
             successive_error_count = 0;
